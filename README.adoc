@@ -1,0 +1,18 @@
+image:https://github.com/mhinz/vim-sayonara/blob/master/image/sayonara.png[vim-sayonara]
+
+This plugin provides a single helper command, `:Sayonara`, that deletes a
+buffer and also quits the window if it makes more. You basically don't have to
+think in terms of `:bdelete` or `:quit` anymore.
+
+If it's a modified buffer, you'll get asked, if you really want to delete it.
+
+`:Sayonara` deletes the current buffer and closes the window if there are no
+more listed buffers.
+
+`:Sayonara!` deletes the current buffer but preserves the window. If there's no
+other listed buffer that can be switched to, an empty scratch buffer is
+created.
+
+Alternatively `:Sayonara` takes an argument which is either a buffer number or
+a buffer name. You can also list all valid arguments via `<c-d>` or complete
+them via `<tab>`.
