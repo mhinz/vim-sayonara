@@ -1,7 +1,7 @@
 image:https://github.com/mhinz/vim-sayonara/blob/master/image/sayonara.png[vim-sayonara]
 
 This plugin provides a single helper command, `:Sayonara`, that deletes a
-buffer and also quits the window if it makes more. You basically don't have to
+buffer and also quits the window if it makes sense. You basically don't have to
 think in terms of `:bdelete` or `:quit` anymore.
 
 If it's a modified buffer, you'll get asked, if you really want to delete it.
@@ -16,3 +16,18 @@ created.
 Alternatively `:Sayonara` takes an argument which is either a buffer number or
 a buffer name. You can also list all valid arguments via `<c-d>` or complete
 them via `<tab>`.
+
+*Examples*:
+
+Close current buffer but preserve the window:
+
+`:Sayonara!`
+
+Close buffer that is associated with number 7:
+
+`:Sayonara 7`
+
+Buffer numbers take priority over names, so if you have a buffer number 7 and
+another buffer named "7", do this instead:
+
+`:Sayonara '7'` (Single and not double quotes!)
