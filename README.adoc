@@ -31,3 +31,49 @@ Buffer numbers take priority over names, so if you have a buffer number 7 and
 another buffer named "7", do this instead:
 
 `:Sayonara '7'` (Single and not double quotes!)
+
+Personally I use these mappings for convenience:
+
+```vim
+nnoremap <silent><leader>q    :Sayonara<cr>
+nnoremap <silent><leader>Q    :Sayonara!<cr>
+```
+
+So usually I just have to hit `<leader>q` and the plugin does what I want.
+
+== Installation and Documentation
+
+If you have no preferred installation method, I suggest using
+https://github.com/junegunn/vim-plug[vim-plug]. Afterwards installing
+vim-sayonara is as easy as pie.
+
+Add this to your vimrc:
+
+    Plug 'mhinz/vim-sayonara', { 'on': 'Sayonara' }
+
+Restart Vim or `:source %` your vimrc. Then do `:PlugInstall` and vim-plug will
+fetch and install vim-sayonara from Github.
+
+It works without any configuration, but you might want to look into the
+documentation for further customization:
+
+    :h sayonara
+
+== Author and Feedback
+
+If you like my plugins, please star them on Github. It's a great way of getting
+feedback. Same goes for issues reports or feature requests.
+
+*Names:* Marco Hinz, mhinz, mhi^, mhi
+
+*Mail:* `<mh.codebro@gmail.com>`
+
+*Twitter:* https://twitter.com/\_mhinz_[@\_mhinz_]
+
+*Stackoverflow:* http://stackoverflow.com/users/1606959/mhinz[mhinz]
+
+_Thank you for flying mhi airlines. Get your Vim on!_
+
+== License
+
+MIT license. Copyright (c) 2015 Marco Hinz.
