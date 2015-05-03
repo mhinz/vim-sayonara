@@ -66,11 +66,11 @@ feedback. Same goes for issues reports or feature requests.
 
 *Names:* Marco Hinz, mhinz, mhi^, mhi
 
+*IRC:* `mhi^` (Freenode)
+
 *Mail:* `<mh.codebro@gmail.com>`
 
 *Twitter:* https://twitter.com/\_mhinz_[@\_mhinz_]
-
-*Stackoverflow:* http://stackoverflow.com/users/1606959/mhinz[mhinz]
 
 _Thank you for flying mhi airlines. Get your Vim on!_
 
