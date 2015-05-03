@@ -1,3 +1,14 @@
+" vim: et sw=2 sts=2
+
+" Plugin:      https://github.com/mhinz/vim-sayonara
+" Description: Sane window/buffer closing.
+" Maintainer:  Marco Hinz <http://github.com/mhinz>
+
+if exists('g:loaded_sayoara') || &compatible
+  finish
+endif
+let g:loaded_sayoara = 1
+
 " s:delete_buffer() {{{1
 function! s:delete_buffer(bufnr, preserve_window)
   if a:preserve_window
