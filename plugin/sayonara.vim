@@ -57,7 +57,6 @@ function! s:preserve_window(bufnr)
     let bufs = []
     for buf in valid_buffers
       if buf < a:bufnr
-        let bufs += [ buf ]
         call insert(bufs, buf, 0)
       else
         call add(bufs, buf)
