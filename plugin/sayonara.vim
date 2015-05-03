@@ -13,7 +13,7 @@ let g:loaded_sayoara = 1
 function! s:delete_buffer(bufnr, preserve_window)
   if a:preserve_window
     let scratchnr = s:preserve_window(a:bufnr)
-    if a:bufnr != scratchnr
+    if (a:bufnr != scratchnr) && bufexists(a:bufnr)
       execute 'silent bdelete!' a:bufnr
     endif
   else
@@ -84,7 +84,7 @@ function! s:extract_buffer_number(buffer)
   let bufnr = str2nr(a:buffer)
   " Priorize buffer 5 over a buffer named '5'. If you want the latter,
   " use :Sayonara '5' (the single quotes are important here).
-  return bufnr(bufnr && buflisted(bufnr) ? bufnr : a:buffer)
+  return bufnr(bufnr ? bufnr : a:buffer)
 endfunction
 
 " s:bailout() {{{1
@@ -97,15 +97,17 @@ endfunction
 
 " s:handle_usecases() {{{1
 function! s:handle_usecases(bufnr, preserve_window)
-  let buftype  = getbufvar(a:bufnr, '&buftype')
-  let filetype = getbufvar(a:bufnr, '&filetype')
-  let nlisted  = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+  let buftype   = getbufvar(a:bufnr, '&buftype')
+  let filetype  = getbufvar(a:bufnr, '&filetype')
+  let buflisted = getbufvar(a:bufnr, '&buflisted')
+  let nlisted   = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
 
   if (buftype == 'nofile') && (filetype == 'vim')  " cmdline window
     quit
   elseif buftype == 'quickfix'                     " quickfix window
     cclose
-  elseif (buftype == 'nofile') && (nlisted > 0)    " probably a plugin buffer
+  elseif ((buftype =~ 'nofile') && (nlisted > 0))
+        \ || !buflisted                            " probably a plugin buffer
     call s:delete_buffer(a:bufnr, a:preserve_window)
   elseif nlisted > 1                               " multiple buffers
     call s:delete_buffer(a:bufnr, a:preserve_window)
