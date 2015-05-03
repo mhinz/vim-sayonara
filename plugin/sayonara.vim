@@ -84,7 +84,7 @@ function! s:extract_buffer_number(buffer)
   let bufnr = str2nr(a:buffer)
   " Priorize buffer 5 over a buffer named '5'. If you want the latter,
   " use :Sayonara '5' (the single quotes are important here).
-  return bufnr(bufnr ? bufnr : a:buffer)
+  return bufnr(bufnr && buflisted(bufnr) ? bufnr : a:buffer)
 endfunction
 
 " s:bailout() {{{1
