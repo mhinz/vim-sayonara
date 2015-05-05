@@ -9,21 +9,32 @@ if exists('g:loaded_sayoara') || &compatible
 endif
 let g:loaded_sayoara = 1
 
-" s:delete_buffer() {{{1
-function! s:delete_buffer(bufnr, preserve_window)
-  if a:preserve_window
-    let scratchnr = s:preserve_window(a:bufnr)
-    if (a:bufnr != scratchnr) && bufexists(a:bufnr)
-      execute 'silent bdelete!' a:bufnr
+let s:prototype = {}
+
+" s:prototype.create_scratch_buffer() {{{1
+function! s:prototype.create_scratch_buffer()
+  enew!
+  let self.scratch_buffer_number = bufnr('%')
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+endfunction
+
+" s:prototype.delete_buffer() {{{1
+function! s:prototype.delete_buffer()
+  if self.do_preserve
+    call self.preserve_window()
+    if has_key(self, 'scratch_buffer_number')
+          \ && bufexists(self.target_buffer_number)
+          \ && self.target_buffer_number != self.scratch_buffer_number
+      execute 'silent bdelete!' self.target_buffer_number
     endif
   else
-    execute 'silent bdelete!' a:bufnr
+    execute 'silent bdelete!' self.target_buffer_number
   endif
 endfunction
 
-" s:handle_modified_buffer() {{{1
-function! s:handle_modified_buffer(bufnr)
-  if getbufvar(a:bufnr, '&modified')
+" s:prototype.handle_modified_buffer() {{{1
+function! s:prototype.handle_modified_buffer()
+  if getbufvar(self.target_buffer_number, '&modified')
     call inputsave()
     let answer = input('No changes since last write. Really delete it? [y/n]: ')
     call inputrestore()
@@ -34,29 +45,51 @@ function! s:handle_modified_buffer(bufnr)
   return ''
 endfunction
 
-" s:preserve_window() {{{1
-function! s:preserve_window(bufnr)
-  let win = bufwinnr(a:bufnr)
+" s:prototype.handle_usecases() {{{1
+function! s:prototype.handle_usecases()
+  let buftype   = getbufvar(self.target_buffer_number, '&buftype')
+  let filetype  = getbufvar(self.target_buffer_number, '&filetype')
+  let buflisted = getbufvar(self.target_buffer_number, '&buflisted')
+  let nlisted   = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+
+  if (buftype == 'nofile') && (filetype == 'vim')  " cmdline window
+    quit
+  elseif buftype == 'quickfix'                     " quickfix window
+    cclose
+  elseif ((buftype =~ 'nofile') && (nlisted > 0))
+        \ || !buflisted                            " probably a plugin buffer
+    call self.delete_buffer()
+  elseif nlisted > 1                               " multiple buffers
+    call self.delete_buffer()
+  elseif self.do_preserve                          " 0 or 1 buffer + preserve
+    call self.delete_buffer()
+  else                                             " 0 or 1 buffer
+    quit!
+  endif
+endfunction
+
+" s:prototype.preserve_window() {{{1
+function! s:prototype.preserve_window()
+  let win = bufwinnr(self.target_buffer_number)
   if win == -1
     return
   endif
 
-  let scratchnr = -1
-  let origwin   = winnr()
+  let self.original_window = winnr()
   execute win .'wincmd w'
 
   let altbufnr        = bufnr('#')
   let visible_buffers = filter(tabpagebuflist(), 'v:val != '. win)
   let valid_buffers   = filter(range(1, bufnr('$')),
-        \ 'index(visible_buffers, v:val) == -1 && buflisted(v:val) && v:val != a:bufnr')
+        \ 'index(visible_buffers, v:val) == -1 && buflisted(v:val) && v:val != self.target_buffer_number')
 
   if empty(valid_buffers)
-    let scratchnr = s:create_scratch_buffer()
+    call self.create_scratch_buffer()
   elseif index(valid_buffers, altbufnr) == -1
     " get previous valid buffer
     let bufs = []
     for buf in valid_buffers
-      if buf < a:bufnr
+      if buf < self.target_buffer_number
         call insert(bufs, buf, 0)
       else
         call add(bufs, buf)
@@ -67,15 +100,7 @@ function! s:preserve_window(bufnr)
     buffer #
   endif
 
-  execute origwin .'wincmd w'
-  return scratchnr
-endfunction
-
-" s:create_scratch_buffer() {{{1
-function! s:create_scratch_buffer()
-  enew!
-  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
-  return bufnr('%')
+  execute self.original_window .'wincmd w'
 endfunction
 
 " s:extract_buffer_number() {{{1
@@ -87,45 +112,21 @@ function! s:extract_buffer_number(buffer)
   return bufnr(bufnr ? bufnr : a:buffer)
 endfunction
 
-" s:bailout() {{{1
-function! s:bailout(msg)
-  echohl ErrorMsg
-  echomsg a:msg
-  echohl NONE
-  return 'return'
-endfunction
-
-" s:handle_usecases() {{{1
-function! s:handle_usecases(bufnr, preserve_window)
-  let buftype   = getbufvar(a:bufnr, '&buftype')
-  let filetype  = getbufvar(a:bufnr, '&filetype')
-  let buflisted = getbufvar(a:bufnr, '&buflisted')
-  let nlisted   = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-
-  if (buftype == 'nofile') && (filetype == 'vim')  " cmdline window
-    quit
-  elseif buftype == 'quickfix'                     " quickfix window
-    cclose
-  elseif ((buftype =~ 'nofile') && (nlisted > 0))
-        \ || !buflisted                            " probably a plugin buffer
-    call s:delete_buffer(a:bufnr, a:preserve_window)
-  elseif nlisted > 1                               " multiple buffers
-    call s:delete_buffer(a:bufnr, a:preserve_window)
-  elseif a:preserve_window                         " 0 or 1 buffer + preserve
-    call s:delete_buffer(a:bufnr, a:preserve_window)
-  else                                             " 0 or 1 buffer
-    quit!
-  endif
-endfunction
-
 " s:sayonara() {{{1
-function! s:sayonara(preserve_window, buffer)
+function! s:sayonara(do_preserve, buffer)
   let bufnr = s:extract_buffer_number(a:buffer)
   if bufnr == -1
-    execute s:bailout('No such buffer: '. a:buffer)
+    echohl ErrorMsg
+    echomsg 'No such buffer: '. a:buffer
+    echohl NONE
+    return
   endif
-  execute s:handle_modified_buffer(bufnr)
-  call s:handle_usecases(bufnr, a:preserve_window)
+  let instance = extend(s:prototype, {
+        \ 'target_buffer_number': bufnr,
+        \ 'do_preserve': a:do_preserve,
+        \ })
+  execute instance.handle_modified_buffer()
+  call instance.handle_usecases()
 endfunction
 " }}}
 
