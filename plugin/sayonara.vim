@@ -23,18 +23,19 @@ function! s:prototype.delete_buffer()
   if self.do_preserve
     call self.preserve_window()
     if has_key(self, 'scratch_buffer_number')
-          \ && bufexists(self.target_buffer_number)
           \ && self.target_buffer_number != self.scratch_buffer_number
+          \ && bufloaded(self.target_buffer_number)
       execute 'silent bdelete!' self.target_buffer_number
     endif
   else
+    lclose
     execute 'silent bdelete!' self.target_buffer_number
   endif
 endfunction
 
 " s:prototype.handle_modified_buffer() {{{1
 function! s:prototype.handle_modified_buffer()
-  if getbufvar(self.target_buffer_number, '&modified')
+  if &modified
     call inputsave()
     let answer = input('No changes since last write. Really delete it? [y/n]: ')
     call inputrestore()
@@ -47,42 +48,31 @@ endfunction
 
 " s:prototype.handle_usecases() {{{1
 function! s:prototype.handle_usecases()
-  let buftype   = getbufvar(self.target_buffer_number, '&buftype')
-  let filetype  = getbufvar(self.target_buffer_number, '&filetype')
-  let buflisted = getbufvar(self.target_buffer_number, '&buflisted')
-  let nlisted   = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+  let nlisted = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
 
-  if (buftype == 'nofile') && (filetype == 'vim')  " cmdline window
-    quit
-  elseif buftype == 'quickfix'                     " quickfix window
-    cclose
-  elseif ((buftype =~ 'nofile') && (nlisted > 0))
-        \ || !buflisted                            " probably a plugin buffer
-    call self.delete_buffer()
-  elseif nlisted > 1                               " multiple buffers
-    call self.delete_buffer()
-  elseif self.do_preserve                          " 0 or 1 buffer + preserve
-    call self.delete_buffer()
-  else                                             " 0 or 1 buffer
-    quit!
+  if (&buftype == 'nofile') && (&filetype == 'vim')
+    quit                       " cmdline window
+  elseif &buftype == 'quickfix'
+    quit                       " qf or loc list
+  elseif (!&buflisted || (&buftype == 'nofile')) && (nlisted > 0)
+    call self.delete_buffer()  " probably a plugin buffer
+  elseif nlisted > 1
+    call self.delete_buffer()  " multiple buffers
+  elseif self.do_preserve
+    call self.delete_buffer()  " 0 or 1 buffer + preserve
+  else
+    quit!                      " 0 or 1 buffer
   endif
 endfunction
 
 " s:prototype.preserve_window() {{{1
 function! s:prototype.preserve_window()
-  let win = bufwinnr(self.target_buffer_number)
-  if win == -1
-    return
-  endif
-
-  let self.original_window = winnr()
-  execute win .'wincmd w'
-
   let altbufnr        = bufnr('#')
-  let visible_buffers = filter(tabpagebuflist(), 'v:val != '. win)
+  let visible_buffers = filter(tabpagebuflist(), 'v:val != '. self.target_buffer_number)
   let valid_buffers   = filter(range(1, bufnr('$')),
         \ 'index(visible_buffers, v:val) == -1 && buflisted(v:val) && v:val != self.target_buffer_number')
-
+  " Valid buffers are all buffers that are hidden, listed and not the to be
+  " deleted buffer.
   if empty(valid_buffers)
     call self.create_scratch_buffer()
   elseif index(valid_buffers, altbufnr) == -1
@@ -99,36 +89,17 @@ function! s:prototype.preserve_window()
   else
     buffer #
   endif
-
-  execute self.original_window .'wincmd w'
-endfunction
-
-" s:extract_buffer_number() {{{1
-function! s:extract_buffer_number(buffer)
-  " NOTE: 'buffer' is of type string.
-  let bufnr = str2nr(a:buffer)
-  " Priorize buffer 5 over a buffer named '5'. If you want the latter,
-  " use :Sayonara '5' (the single quotes are important here).
-  return bufnr(bufnr ? bufnr : a:buffer)
 endfunction
 
 " s:sayonara() {{{1
-function! s:sayonara(do_preserve, buffer)
-  let bufnr = s:extract_buffer_number(a:buffer)
-  if bufnr == -1
-    echohl ErrorMsg
-    echomsg 'No such buffer: '. a:buffer
-    echohl NONE
-    return
-  endif
+function! s:sayonara(do_preserve)
   let instance = extend(s:prototype, {
-        \ 'target_buffer_number': bufnr,
         \ 'do_preserve': a:do_preserve,
+        \ 'target_buffer_number': bufnr('%'),
         \ })
   execute instance.handle_modified_buffer()
   call instance.handle_usecases()
 endfunction
 " }}}
 
-command! -nargs=? -complete=buffer -bang -bar Sayonara
-      \ call s:sayonara(<bang>0, <q-args>)
+command! -nargs=0 -complete=buffer -bang -bar Sayonara call s:sayonara(<bang>0)

@@ -1,8 +1,8 @@
 image:https://github.com/mhinz/vim-sayonara/blob/master/image/sayonara.png[vim-sayonara]
 
 This plugin provides a single helper command, `:Sayonara`, that deletes a
-buffer and also quits the window if it makes sense. You basically don't have to
-think in terms of `:bdelete` or `:quit` anymore.
+buffer and also quits a window (or closes Vim), if it makes sense. You
+basically don't have to think in terms of `:bdelete` or `:quit` anymore.
 
 If it's a modified buffer, you'll get asked, if you really want to delete it.
 
@@ -12,25 +12,6 @@ more listed buffers.
 `:Sayonara!` deletes the current buffer but preserves the window. If there's no
 other listed buffer that can be switched to, an empty scratch buffer is
 created.
-
-Alternatively `:Sayonara` takes an argument which is either a buffer number or
-a buffer name. You can also list all valid arguments via `<c-d>` or complete
-them via `<tab>`.
-
-*Examples*:
-
-Close current buffer but preserve the window:
-
-`:Sayonara!`
-
-Close buffer that is associated with number 7:
-
-`:Sayonara 7`
-
-Buffer numbers take priority over names, so if you have a buffer number 7 and
-another buffer named "7", do this instead:
-
-`:Sayonara '7'` (Single and not double quotes!)
 
 Personally I use these mappings for convenience:
 
@@ -54,8 +35,8 @@ Add this to your vimrc:
 Restart Vim or `:source %` your vimrc. Then do `:PlugInstall` and vim-plug will
 fetch and install vim-sayonara from Github.
 
-It works without any configuration, but you might want to look into the
-documentation for further customization:
+It works without any configuration, but you might want to look at the
+documentation for how it works in detail:
 
     :h sayonara
 
