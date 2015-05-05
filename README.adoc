@@ -1,26 +1,39 @@
 image:https://github.com/mhinz/vim-sayonara/blob/master/image/sayonara.png[vim-sayonara]
 
-This plugin provides a single helper command, `:Sayonara`, that deletes a
-buffer and also quits a window (or closes Vim), if it makes sense. You
-basically don't have to think in terms of `:bdelete` or `:quit` anymore.
+This plugin provides a single command that closes the current buffer in a smart
+way.
 
-If it's a modified buffer, you'll get asked, if you really want to delete it.
+Basically you don't have to think in terms of `:bdelete`, `:close`, `:quit`
+etc. anymore, since the plugin does that for you.
 
-`:Sayonara` deletes the current buffer and closes the window if there are no
-more listed buffers.
+It reduces cognitive load and lets you focus on the main task: editing text.
 
-`:Sayonara!` deletes the current buffer but preserves the window. If there's no
-other listed buffer that can be switched to, an empty scratch buffer is
-created.
+    :Sayonara
 
-Personally I use these mappings for convenience:
+It deletes the current buffer. If there are no other listed buffers (see `:h
+unlisted-buffers`), it will close the current window. If this is the last
+window in the tabpage, it will close the tabpage. If it's the last tabpage, it
+will quit Vim.
 
-```vim
-nnoremap <silent><leader>q    :Sayonara<cr>
-nnoremap <silent><leader>Q    :Sayonara!<cr>
-```
+If the buffer contains unsaved changes, you'll be prompted on what to do.
 
-So usually I just have to hit `<leader>q` and the plugin does what I want.
+If a window with an associated `location-list` is closed, the location list
+will be closed as well.
+
+    :Sayonara!
+
+This deletes the current buffer but preserves the window. If there are no other
+buffers to switch to, an empty scrach buffer will be created instead.
+
+You'll probably want to map `:Sayonara` to something more convenient, e.g.:
+
+    nnoremap <leader>q :Sayonara<cr>
+    nnoremap <leader>Q :Sayonara!<cr>
+
+Or maybe `gs`, because usually nobody will need its default functionality:
+
+    nnoremap gs :Sayonara<cr>
+    nnoremap gS :Sayonara!<cr>
 
 == Installation and Documentation
 
@@ -35,8 +48,8 @@ Add this to your vimrc:
 Restart Vim or `:source %` your vimrc. Then do `:PlugInstall` and vim-plug will
 fetch and install vim-sayonara from Github.
 
-It works without any configuration, but you might want to look at the
-documentation for how it works in detail:
+It works without any configuration, but you can find the same text as in this
+README here:
 
     :h sayonara
 
