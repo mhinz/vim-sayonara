@@ -36,10 +36,9 @@ endfunction
 " s:prototype.handle_modified_buffer() {{{1
 function! s:prototype.handle_modified_buffer()
   if &modified
-    call inputsave()
-    let answer = input('No changes since last write. Really delete it? [y/n]: ')
-    call inputrestore()
-    if answer != 'y'
+    echo 'There are unsaved changes. Delete anyway? [y/n]: '
+    if nr2char(getchar()) != 'y'
+      redraw!
       return 'return'
     endif
   endif
