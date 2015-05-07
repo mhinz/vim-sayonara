@@ -22,15 +22,10 @@ endfunction
 function! s:prototype.delete_buffer()
   if self.do_preserve
     call self.preserve_window()
-    if has_key(self, 'scratch_buffer_number')
-          \ && self.target_buffer_number != self.scratch_buffer_number
-          \ && bufloaded(self.target_buffer_number)
-      execute 'silent bdelete!' self.target_buffer_number
-    endif
   else
     lclose
-    execute 'silent bdelete!' self.target_buffer_number
   endif
+  execute 'silent bdelete!' self.target_buffer_number
 endfunction
 
 " s:prototype.handle_modified_buffer() {{{1
