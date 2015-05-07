@@ -14,6 +14,7 @@ let s:prototype = {}
 " s:prototype.create_scratch_buffer() {{{1
 function! s:prototype.create_scratch_buffer()
   enew!
+  let self.scratch_buffer_number = bufnr('%')
   setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
 endfunction
 
