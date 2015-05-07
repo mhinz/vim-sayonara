@@ -10,10 +10,9 @@ It reduces cognitive load and lets you focus on the main task: editing text.
 
     :Sayonara
 
-It deletes the current buffer. If there are no other listed buffers (see `:h
-unlisted-buffers`), it will close the current window. If this is the last
-window in the tabpage, it will close the tabpage. If it's the last tabpage, it
-will quit Vim.
+This deletes the current buffer and closes the window. If it's the last window
+in the tabpage, it will close the tabpage. If it's the only tabpage, Vim will
+quit.
 
 If the buffer contains unsaved changes, you'll be prompted on what to do.
 
@@ -23,7 +22,8 @@ will be closed as well.
     :Sayonara!
 
 This deletes the current buffer but preserves the window. If there are no other
-buffers to switch to, an empty scrach buffer will be created instead.
+listed buffers (see `:h unlisted-buffer`) to switch to, an empty scratch buffer
+is created instead.
 
 You'll probably want to map `:Sayonara` to something more convenient, e.g.:
 
