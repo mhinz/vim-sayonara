@@ -10,14 +10,16 @@ It reduces cognitive load and lets you focus on the main task: editing text.
 
     :Sayonara
 
-This deletes the current buffer and closes the window. If it's the last window
-in the tabpage, it will close the tabpage. If it's the only tabpage, Vim will
-quit.
+This deletes the current buffer. If there are multiple windows in the tabpage,
+the current window will be closed as well.
+
+If there are no listed buffers to switch to anymore, the current tabpage will
+be closed. If this is the only tabpage, Vim will quit instead.
 
 If the buffer contains unsaved changes, you'll be prompted on what to do.
 
 If a window with an associated `location-list` is closed, the location list
-will be closed as well.
+will be closed, too.
 
     :Sayonara!
 
