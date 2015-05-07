@@ -29,7 +29,11 @@ function! s:prototype.delete_buffer()
       lclose
     endif
   endif
-  execute 'silent bdelete!' self.target_buffer_number
+  " After preserve_window(), the target buffer might not exist anymore
+  " (bufhidden=delete).
+  if bufloaded(self.target_buffer_number)
+    execute 'silent bdelete!' self.target_buffer_number
+  endif
 endfunction
 
 " s:prototype.handle_modified_buffer() {{{1
