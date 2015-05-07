@@ -23,7 +23,11 @@ function! s:prototype.delete_buffer()
   if self.do_preserve
     call self.preserve_window()
   else
-    lclose
+    if (tabpagenr('$') > 1) && (winnr('$') == 1)
+      call self.preserve_window()
+    else
+      lclose
+    endif
   endif
   execute 'silent bdelete!' self.target_buffer_number
 endfunction
