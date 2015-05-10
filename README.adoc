@@ -92,6 +92,23 @@ README here:
 
     :h sayonara
 
+== Isn't this the same as bufkill?
+
+No.
+
+The biggest difference is that bufkill doesn't handle other windows and
+tabpages at all, so if you try to delete a buffer that is also shown in another
+window, multiple windows will be closed. Sayonara is more predictable in this
+regard, and, if at all, only closes the current window.
+
+Bufkill also doesn't handle associated location lists.
+
+Sayonara simply handles more corner cases and tries to make one command always
+Do The Right Thing whereas bufkill provides multiple commands so you always
+have to think about what you're trying to do.
+
+Sayonara's code is much shorter and simpler than bufkill's.
+
 == Author and Feedback
 
 If you like my plugins, please star them on Github. It's a great way of getting
