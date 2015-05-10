@@ -30,13 +30,14 @@ function! s:prototype.delete_buffer()
     endif
   endif
   " After preserve_current_window(), the target buffer might not exist anymore
-  " (bufhidden=delete).
-  if bufloaded(self.target_buffer_number)
+  " (bufhidden=delete). Also, buflisted() has to be used instead of
+  " bufloaded(), since buffers get unloaded when 'nohidden' is set.
+  if buflisted(self.target_buffer_number)
     if has_key(self, 'scratch_buffer_number')
           \ && self.scratch_buffer_number == self.target_buffer_number
       return
     endif
-    execute 'silent bdelete!' self.target_buffer_number
+    execute 'bdelete!' self.target_buffer_number
   endif
 endfunction
 
