@@ -30,9 +30,8 @@ function! s:prototype.delete_buffer()
     endif
   endif
   " After preserve_current_window(), the target buffer might not exist anymore
-  " (bufhidden=delete). Also, buflisted() has to be used instead of
-  " bufloaded(), since buffers get unloaded when 'nohidden' is set.
-  if buflisted(self.target_buffer_number)
+  " (bufhidden=delete).
+  if bufloaded(self.target_buffer_number)
     if has_key(self, 'scratch_buffer_number')
           \ && self.scratch_buffer_number == self.target_buffer_number
       return
@@ -122,13 +121,18 @@ endfunction
 
 " s:sayonara() {{{1
 function! s:sayonara(do_preserve)
-  let instance = extend(s:prototype, {
-        \ 'do_preserve': a:do_preserve,
-        \ 'target_buffer_number': bufnr('%'),
-        \ })
-  execute instance.handle_modified_buffer()
-  noautocmd call instance.preserve_all_but_current_windows()
-  call instance.handle_usecases()
+  let hidden = &hidden
+  try
+    let instance = extend(s:prototype, {
+          \ 'do_preserve': a:do_preserve,
+          \ 'target_buffer_number': bufnr('%'),
+          \ })
+    execute instance.handle_modified_buffer()
+    noautocmd call instance.preserve_all_but_current_windows()
+    call instance.handle_usecases()
+  finally
+    let &hidden = hidden
+  endtry
 endfunction
 " }}}
 
