@@ -30,6 +30,8 @@ function! s:prototype.delete_buffer()
   endif
 
   if self.do_preserve
+        \ || (len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+        \     && winnr('$') == 1)
     return
   endif
 
