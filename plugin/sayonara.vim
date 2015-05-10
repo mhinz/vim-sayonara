@@ -21,15 +21,15 @@ endfunction
 " s:prototype.delete_buffer() {{{1
 function! s:prototype.delete_buffer()
   if self.do_preserve
-    call self.preserve_window()
+    call self.preserve_current_window()
   else
     if (tabpagenr('$') > 1) && (winnr('$') == 1)
-      call self.preserve_window()
+      call self.preserve_current_window()
     else
       lclose
     endif
   endif
-  " After preserve_window(), the target buffer might not exist anymore
+  " After preserve_current_window(), the target buffer might not exist anymore
   " (bufhidden=delete).
   if bufloaded(self.target_buffer_number)
     if has_key(self, 'scratch_buffer_number')
@@ -71,14 +71,12 @@ function! s:prototype.handle_usecases()
   endif
 endfunction
 
-" s:prototype.preserve_window() {{{1
-function! s:prototype.preserve_window()
-  let altbufnr        = bufnr('#')
-  let visible_buffers = filter(tabpagebuflist(), 'v:val != '. self.target_buffer_number)
-  let valid_buffers   = filter(range(1, bufnr('$')),
-        \ 'index(visible_buffers, v:val) == -1 && buflisted(v:val) && v:val != self.target_buffer_number')
-  " Valid buffers are all buffers that are hidden, listed and not the to be
-  " deleted buffer.
+" s:prototype.preserve_current_window() {{{1
+function! s:prototype.preserve_current_window()
+  let altbufnr = bufnr('#')
+  let valid_buffers = filter(range(1, bufnr('$')),
+        \ 'buflisted(v:val) && v:val != self.target_buffer_number')
+
   if empty(valid_buffers)
     call self.create_scratch_buffer()
   elseif index(valid_buffers, altbufnr) == -1
@@ -93,8 +91,32 @@ function! s:prototype.preserve_window()
     endfor
     execute 'buffer!' bufs[0]
   else
-    buffer #
+    buffer! #
   endif
+endfunction
+
+" s:prototype.preserve_all_but_current_windows() {{{1
+function! s:prototype.preserve_all_but_current_windows()
+  let lr = &lazyredraw
+  set lazyredraw
+
+  let source_window = [tabpagenr(), winnr()]
+
+  for tabpage in range(1, tabpagenr('$'))
+    execute 'tabnext' tabpage
+    for window in range(1, winnr('$'))
+      if winbufnr(window) == self.target_buffer_number
+            \ && ((tabpage != source_window[0]) || (window != source_window[1]))
+        execute window .'wincmd w'
+        call self.preserve_current_window()
+      endif
+    endfor
+  endfor
+
+  execute 'tabnext' source_window[0]
+  execute source_window[1] .'wincmd w'
+
+  let &lazyredraw = lr
 endfunction
 
 " s:sayonara() {{{1
@@ -104,6 +126,7 @@ function! s:sayonara(do_preserve)
         \ 'target_buffer_number': bufnr('%'),
         \ })
   execute instance.handle_modified_buffer()
+  call instance.preserve_all_but_current_windows()
   call instance.handle_usecases()
 endfunction
 " }}}

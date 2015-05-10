@@ -1,0 +1,7 @@
+This directory contains some really simple tests that are meant to be run
+manually via:
+
+$ vim -u test/test_foo.vim
+
+They simply set up certain buffer/window/tabpage configurations that sayonara
+should be able to handle.
