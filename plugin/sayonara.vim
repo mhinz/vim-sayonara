@@ -1,7 +1,7 @@
 " vim: et sw=2 sts=2
 
 " Plugin:      https://github.com/mhinz/vim-sayonara
-" Description: Sane window/buffer closing.
+" Description: Sane window/buffer deletion.
 " Maintainer:  Marco Hinz <http://github.com/mhinz>
 
 if exists('g:loaded_sayoara') || &compatible
@@ -14,30 +14,31 @@ let s:prototype = {}
 " s:prototype.create_scratch_buffer() {{{1
 function! s:prototype.create_scratch_buffer()
   enew!
-  let self.scratch_buffer_number = bufnr('%')
   setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+  return bufnr('%')
 endfunction
 
 " s:prototype.delete_buffer() {{{1
 function! s:prototype.delete_buffer()
-  if self.do_preserve
-    call self.preserve_current_window()
-  else
-    if (tabpagenr('$') > 1) && (winnr('$') == 1)
-      call self.preserve_current_window()
-    else
-      lclose
-    endif
-  endif
+  let scratch_buffer_number = self.preserve_current_window()
+
   " After preserve_current_window(), the target buffer might not exist anymore
   " (bufhidden=delete).
   if bufloaded(self.target_buffer_number)
-    if has_key(self, 'scratch_buffer_number')
-          \ && self.scratch_buffer_number == self.target_buffer_number
-      return
-    endif
-    execute 'bdelete!' self.target_buffer_number
+        \ && (scratch_buffer_number != self.target_buffer_number)
+    execute 'silent bdelete!' self.target_buffer_number
   endif
+
+  if self.do_preserve
+    return
+  endif
+
+  lclose
+  try
+    close
+  catch /E444/
+    quit!
+  endtry
 endfunction
 
 " s:prototype.handle_modified_buffer() {{{1
@@ -52,25 +53,6 @@ function! s:prototype.handle_modified_buffer()
   return ''
 endfunction
 
-" s:prototype.handle_usecases() {{{1
-function! s:prototype.handle_usecases()
-  let nlisted = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-
-  if (&buftype == 'nofile') && (&filetype == 'vim')
-    quit                       " cmdline window
-  elseif &buftype == 'quickfix'
-    quit                       " qf or loc list
-  elseif (!&buflisted || (&buftype == 'nofile')) && (nlisted > 0)
-    call self.delete_buffer()  " probably a plugin buffer
-  elseif nlisted > 1
-    call self.delete_buffer()  " multiple buffers
-  elseif self.do_preserve
-    call self.delete_buffer()  " 0 or 1 buffer + preserve
-  else
-    quit!                      " 0 or 1 buffer
-  endif
-endfunction
-
 " s:prototype.preserve_current_window() {{{1
 function! s:prototype.preserve_current_window()
   let altbufnr = bufnr('#')
@@ -78,7 +60,7 @@ function! s:prototype.preserve_current_window()
         \ 'buflisted(v:val) && v:val != self.target_buffer_number')
 
   if empty(valid_buffers)
-    call self.create_scratch_buffer()
+    return self.create_scratch_buffer()
   elseif index(valid_buffers, altbufnr) == -1
     " get previous valid buffer
     let bufs = []
@@ -100,7 +82,8 @@ function! s:prototype.preserve_all_but_current_windows()
   let lr = &lazyredraw
   set lazyredraw
 
-  let source_window = [tabpagenr(), winnr()]
+  let source_tabpage = tabpagenr()
+  let source_window  = winnr()
 
   for tabpage in range(1, tabpagenr('$'))
     execute 'tabnext' tabpage
@@ -113,8 +96,8 @@ function! s:prototype.preserve_all_but_current_windows()
     endfor
   endfor
 
-  execute 'tabnext' source_window[0]
-  execute source_window[1] .'wincmd w'
+  execute 'tabnext' source_tabpage
+  execute source_window .'wincmd w'
 
   let &lazyredraw = lr
 endfunction
@@ -122,6 +105,7 @@ endfunction
 " s:sayonara() {{{1
 function! s:sayonara(do_preserve)
   let hidden = &hidden
+  set hidden
   try
     let instance = extend(s:prototype, {
           \ 'do_preserve': a:do_preserve,
@@ -129,7 +113,7 @@ function! s:sayonara(do_preserve)
           \ })
     execute instance.handle_modified_buffer()
     noautocmd call instance.preserve_all_but_current_windows()
-    call instance.handle_usecases()
+    call instance.delete_buffer()
   finally
     let &hidden = hidden
   endtry
