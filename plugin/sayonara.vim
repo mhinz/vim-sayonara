@@ -127,7 +127,7 @@ function! s:sayonara(do_preserve)
         \ 'target_buffer_number': bufnr('%'),
         \ })
   execute instance.handle_modified_buffer()
-  call instance.preserve_all_but_current_windows()
+  noautocmd call instance.preserve_all_but_current_windows()
   call instance.handle_usecases()
 endfunction
 " }}}
