@@ -5,3 +5,6 @@ $ vim -u test/test_foo.vim
 
 They simply set up certain buffer/window/tabpage configurations that sayonara
 should be able to handle.
+
+:Sayonara  is mapped to 'gs'
+:Sayonara! is mapped to 'gS'
