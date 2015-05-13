@@ -51,6 +51,12 @@ function! s:prototype.handle_window()
 
   ":Sayonara
 
+  " quickfix or location list
+  if (&buftype == 'quickfix') && (&filetype == 'vim')
+    close
+    return
+  endif
+
   let valid_buffers = len(filter(range(1, bufnr('$')),
         \ 'buflisted(v:val) && v:val != self.target_buffer'))
 
