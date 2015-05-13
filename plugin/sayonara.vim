@@ -51,17 +51,21 @@ function! s:prototype.handle_window()
 
   ":Sayonara
 
-  " let valid_buffers = len(filter(range(1, bufnr('$')),
-  "       \ 'buflisted(v:val) && v:val != self.target_buffer'))
+  let valid_buffers = len(filter(range(1, bufnr('$')),
+        \ 'buflisted(v:val) && v:val != self.target_buffer'))
 
-  " Don't close the last window of any tabpage if there are
-  " other listed buffers.
-  " if valid_buffers > 0 && winnr('$') == 1
-  "   call self.preserve_window()
-  " else
-    lclose
-    quit
-  " endif
+  " Special case: don't quit last window if there are other listed buffers
+  if (tabpagenr('$') == 1) && (winnr('$') == 1) && (valid_buffers >= 1)
+    execute 'silent bdelete!' self.target_buffer
+    return
+  endif
+
+  lclose
+  try
+    close
+  catch /E444/  " cannot close last window
+    quit!
+  endtry
 
   if do_delete
     if bufloaded(self.target_buffer)
