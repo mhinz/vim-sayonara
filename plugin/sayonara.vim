@@ -51,8 +51,8 @@ function! s:prototype.handle_window()
 
   ":Sayonara
 
-  " quickfix or location list
-  if (&buftype == 'quickfix') && (&filetype == 'vim')
+  " quickfix, location or cmdline window
+  if &buftype == 'quickfix' || (&buftype == 'nofile' && &filetype == 'vim')
     close
     return
   endif
