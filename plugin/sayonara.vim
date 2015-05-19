@@ -53,7 +53,11 @@ function! s:prototype.handle_window()
 
   " quickfix, location or cmdline window
   if &buftype == 'quickfix' || (&buftype == 'nofile' && &filetype == 'vim')
-    close
+    try
+      close
+    catch /E444/  " cannot close last window
+      quit!
+    endtry
     return
   endif
 
