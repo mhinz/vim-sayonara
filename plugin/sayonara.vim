@@ -51,7 +51,7 @@ function! s:prototype.handle_window()
 
   ":Sayonara
 
-  " quickfix, location or cmdline window
+  " quickfix, location or q:
   if &buftype == 'quickfix' || (&buftype == 'nofile' && &filetype == 'vim')
     try
       close
@@ -70,7 +70,18 @@ function! s:prototype.handle_window()
     return
   endif
 
-  lclose
+  " Although q: sets &ft == 'vim', q/ and q? do not.
+  try
+    lclose
+  catch /E11/  " invalid in command-line window
+    close
+    let ret = 1
+  endtry
+  if exists('ret')
+    unlet ret
+    return
+  endif
+
   try
     close
   catch /E444/  " cannot close last window
