@@ -8,6 +8,7 @@ if exists('g:loaded_sayoara') || &compatible
   finish
 endif
 let g:loaded_sayoara = 1
+let g:confirm_quit = 1
 
 let s:prototype = {}
 
@@ -28,6 +29,18 @@ function! s:prototype.handle_modified_buffer()
     endif
   endif
   return ''
+endfunction
+
+" s:prototype.handle_quit() {{{1
+function! s:prototype.handle_quit()
+  if (g:confirm_quit) 
+    echo 'Only one buffer remaining. Quit vim? [y/n]: '
+    if nr2char(getchar()) != 'y'
+      redraw!
+      return 'return'
+    endif
+  endif
+  return 'quit!'
 endfunction
 
 " s:prototype.handle_window() {{{1
@@ -56,7 +69,7 @@ function! s:prototype.handle_window()
     try
       close
     catch /E444/  " cannot close last window
-      quit!
+      execute self.handle_quit()
     endtry
     return
   endif
@@ -85,7 +98,7 @@ function! s:prototype.handle_window()
   try
     close
   catch /E444/  " cannot close last window
-    quit!
+    execute self.handle_quit()
   endtry
 
   if do_delete
