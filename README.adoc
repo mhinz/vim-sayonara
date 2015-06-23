@@ -1,5 +1,12 @@
 image:https://github.com/mhinz/vim-sayonara/blob/master/image/sayonara.png[vim-sayonara]
 
+_If you use any of my plugins, please star them on github. It's a great way of
+getting feedback and gives me the kick to put more time into their development.
+If you encounter any bugs or have feature requests, just open an issue report
+on Github._
+
+_Follow me:_ link:https://twitter.com/\_mhinz_[Twitter]
+
 == Intro
 
 This plugin provides a single command that deletes the current buffer in a
@@ -12,85 +19,56 @@ It reduces cognitive load and lets you focus on the main task: editing text.
 
     :Sayonara
 
-This deletes the current buffer and possibly also closes the current window.
+This deletes the current buffer and closes the current window.
 
     :Sayonara!
 
-This deletes the current buffer but preserves the current window.
-
-See the `Details` section further down to learn how these commands work in
-detail.
-
-== Mappings
-
-Everyone prefers different mappings, so there are no default ones.
-
-Nevertheless you'll probably want to map `:Sayonara` to something more
-convenient, e.g.:
-
-    nnoremap <leader>q :Sayonara<cr>
-    nnoremap <leader>Q :Sayonara!<cr>
-
-Or maybe `gs`, because usually nobody will need its default functionality:
-
-    nnoremap gs :Sayonara<cr>
-    nnoremap gS :Sayonara!<cr>
-
-== Details
-
-First of all, `:Sayonara` or `:Sayonara!` will always delete the current buffer.
-If the buffer contains unsaved changes, you'll be prompted on what to do.
-
-The difference between `:Sayonara` and `:Sayonara!` is about how the current
-window (the source window) is handled, but no matter which variant you use,
-these things will happen first for both of them:
-
-Search all windows in all tabpages that contain the target buffer (except the
-source window!) and preserve them. Preserving means either switching to the
-previous buffer or creating an empty buffer in case there are no other listed
-buffers.
-
-This is important, because otherwise `:bdelete` would simply close all these
-windows.
-
-Now come the differences:
-
-For `:Sayonara!` it's easy. Like the other windows before, the source window
-will be preserved and the target buffer deleted.
-
-For `:Sayonara` it's a bit more complicated, since it's designed to Do The Right
-Thing in a variety of different cases.
-
-If there are multiple windows in the current tabpage, the current window will
-be closed as well.
-
-If there is only a single window in the current tabpage, one of two things can
-happen:
-
-  - there other listed buffers: switch to the previous buffer
-  - there are no other listed buffers: either the current tabpage is closed
-    or, if this is the only tabpage, Vim will quit
-
-NOTE: If a window with an associated location list is closed, the location list
-will be closed, too.
+This deletes the current buffer and preserves the current window.
 
 == Installation and Documentation
 
-If you have no preferred installation method, I suggest using
-https://github.com/junegunn/vim-plug[vim-plug]. Afterwards installing
-vim-sayonara is as easy as pie.
-
-Add this to your vimrc:
+If you don't have a plugin manager, I suggest having a look at
+link:https://github.com/junegunn/vim-plug.git[vim-plug]. Installation is a
+breeze afterwards:
 
     Plug 'mhinz/vim-sayonara', { 'on': 'Sayonara' }
 
-Restart Vim or `:source %` your vimrc. Then do `:PlugInstall` and vim-plug will
-fetch and install vim-sayonara from Github.
+Restart Vim or `:source $MYVIMRC`, then do `:PlugInstall`.
 
-It works without any configuration, but you can find the same text as in this
-README here:
+TIP: Read `:h sayonara` for more information about this plugin.
 
-    :h sayonara
+== Details
+
+First of all, `:Sayonara` or `:Sayonara!` will only delete the buffer, if it
+isn't shown in any other window. Otherwise `:bdelete` would close these windows
+as well. Therefore both commands always only affect the current window. This is
+what the user expects and much easier to reason about.
+
+If the buffer contains unsaved changes, you'll be prompted on what to do.
+
+*Sayonara:*
+```
+  * mark current buffer
+  * current window is the only window in current tabpage?
+    true  => are there any other active buffers?
+             true  => switch to most recently used active buffer
+             false => close Vim
+    false => close window
+  * delete marked buffer unless it is shown in any other window
+```
+
+*Sayonara!:*
+
+```
+  * mark current buffer
+  * are there any other active buffers?
+    true  => switch to most recently used active buffer
+    false => create an empty scratch buffer
+  * delete marked buffer unless it is shown in any other window
+```
+
+NOTE: If a window with an associated location-list is closed, the location list
+will be closed as well.
 
 == Isn't this the same as bufkill?
 
@@ -108,21 +86,6 @@ Do The Right Thing whereas bufkill provides multiple commands so you always
 have to think about what you're trying to do.
 
 Sayonara's code is much shorter and simpler than bufkill's.
-
-== Author and Feedback
-
-If you like my plugins, please star them on Github. It's a great way of getting
-feedback. Same goes for issues reports or feature requests.
-
-*Names:* Marco Hinz, mhinz, mhi^, mhi
-
-*IRC:* `mhi^` (Freenode)
-
-*Mail:* `<mh.codebro@gmail.com>`
-
-*Twitter:* https://twitter.com/\_mhinz_[@\_mhinz_]
-
-_Thank you for flying mhi airlines. Get your Vim on!_
 
 == License
 

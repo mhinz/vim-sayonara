@@ -37,11 +37,11 @@ It reduces cognitive load and lets you focus on the main task: editing text.
 >
     :Sayonara
 <
-This deletes the current buffer and possibly also closes the current window.
+This deletes the current buffer and closes the current window.
 >
     :Sayonara!
 <
-This deletes the current buffer but preserves the current window.
+This deletes the current buffer and preserves the current window.
 
 See |sayonara-details| to learn how these commands work in detail.
 
@@ -64,41 +64,33 @@ Or maybe |gs|, because usually nobody will need its default functionality:
 ==============================================================================
 DETAILS                                                       *sayonara-details*
 
-First of all, :Sayonara or :Sayonara! will always delete the current buffer.
+First of all, :Sayonara or :Sayonara! will only delete the buffer, if it isn't
+shown in any other window. Otherwise :bdelete would close these windows as
+well. Therefore both commands always only affect the current window. This is
+what the user expects and much easier to reason about.
+
 If the buffer contains unsaved changes, you'll be prompted on what to do.
 
-The difference between :Sayonara and :Sayonara! is about how the current
-window (the source window) is handled, but no matter which variant you use,
-these things will happen first for both of them:
+:Sayonara:~
 
-Search all windows in all tabpages that contain the target buffer (except the
-source window!) and preserve them. Preserving means either switching to the
-previous buffer or creating an empty buffer in case there are no other listed
-buffers.
+  * mark current buffer
+  * current window is the only window in current tabpage?
+    true  => are there any other active buffers?
+             true  => switch to most recently used active buffer
+             false => close Vim
+    false => close window
+  * delete marked buffer unless it is shown in any other window
 
-This is important, because otherwise |:bdelete| would simply close all these
-windows.
+:Sayonara!:~
 
-Now come the differences:
-
-For :Sayonara! it's easy. Like the other windows before, the source window
-will be preserved and the target buffer deleted.
-
-For :Sayonara it's a bit more complicated, since it's designed to Do The Right
-Thing in a variety of different cases.
-
-If there are multiple windows in the current tabpage, the current window will
-be closed as well.
-
-If there is only a single window in the current tabpage, one of two things can
-happen:
-
-  - there other listed buffers: switch to the previous buffer
-  - there are no other listed buffers: either the current tabpage is closed
-    or, if this is the only tabpage, Vim will quit
+  * mark current buffer
+  * are there any other active buffers?
+    true  => switch to most recently used active buffer
+    false => create an empty scratch buffer
+  * delete marked buffer unless it is shown in any other window
 
 NOTE: If a window with an associated |location-list| is closed, the location
-list will be closed, too.
+list will be closed as well.
 
 ==============================================================================
 vim: tw=78
