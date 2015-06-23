@@ -75,9 +75,11 @@ If the buffer contains unsaved changes, you'll be prompted on what to do.
 
   * mark current buffer
   * current window is the only window in current tabpage?
-    true  => are there any other active buffers?
-             true  => switch to most recently used active buffer
-             false => close Vim
+    true  => is there only one tabpage?
+             true  => are there any other active buffers?
+                      true  => switch to most recently used active buffer
+                      false => close Vim
+             false => close tabpage
     false => close window
   * delete marked buffer unless it is shown in any other window
 
