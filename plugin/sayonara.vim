@@ -8,7 +8,6 @@ if exists('g:loaded_sayoara') || &compatible
   finish
 endif
 let g:loaded_sayoara = 1
-let g:confirm_quit = 1
 
 let s:prototype = {}
 
@@ -33,8 +32,10 @@ endfunction
 
 " s:prototype.handle_quit() {{{1
 function! s:prototype.handle_quit()
-  if (g:confirm_quit) 
-    echo 'Only one buffer remaining. Quit vim? [y/n]: '
+  execute 'silent bdelete!' self.target_buffer
+  redraw!
+  if (get(g:, 'sayonara_confirm_quit'))
+    echo 'No active buffer remaining. Quit Vim? [y/n]: '
     if nr2char(getchar()) != 'y'
       redraw!
       return 'return'
