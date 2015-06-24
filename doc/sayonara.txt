@@ -21,6 +21,7 @@ CONTENTS                                                     *sayonara-contents*
 
     INTRO ................................ |sayonara-intro|
     MAPPINGS ............................. |sayonara-mappings|
+    OPTIONS .............................. |sayonara-options|
     DETAILS .............................. |sayonara-details|
 
 ==============================================================================
@@ -62,6 +63,17 @@ Or maybe |gs|, because usually nobody will need its default functionality:
     nnoremap gS :Sayonara!<cr>
 <
 ==============================================================================
+OPTIONS                                                       *sayonara-options*
+                                                       *g:sayonara_confirm_quit*
+>
+    let g:sayonara_confirm_quit = 1
+<
+When |:Sayonara| deletes the last active buffer, Vim quits. If this option is
+set to `1`, you'll get prompted on whether to quit or not.
+
+Default: 0
+
+==============================================================================
 DETAILS                                                       *sayonara-details*
 
 First of all, :Sayonara or :Sayonara! will only delete the buffer, if it isn't
@@ -78,7 +90,9 @@ If the buffer contains unsaved changes, you'll be prompted on what to do.
     true  => is there only one tabpage?
              true  => are there any other active buffers?
                       true  => switch to most recently used active buffer
-                      false => close Vim
+                      false => Is g:sayonara_confirm_quit set?
+                               true  => confirm whether to quit Vim
+                               false => quit Vim
              false => close tabpage
     false => close window
   * delete marked buffer unless it is shown in any other window

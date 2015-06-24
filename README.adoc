@@ -53,7 +53,9 @@ If the buffer contains unsaved changes, you'll be prompted on what to do.
     true  => is there only one tabpage?
              true  => are there any other active buffers?
                       true  => switch to most recently used active buffer
-                      false => close Vim
+                      false => Is g:sayonara_confirm_quit set?
+                               true  => confirm whether to quit Vim
+                               false => quit Vim
              false => close tabpage
     false => close window
   * delete marked buffer unless it is shown in any other window
