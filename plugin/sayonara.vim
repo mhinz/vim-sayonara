@@ -46,9 +46,31 @@ endfunction
 
 " s:prototype.handle_window() {{{1
 function! s:prototype.handle_window()
-  let do_delete = !self.is_buffer_shown_in_another_window(self.target_buffer)
+  " quickfix, location or q:
+  if &buftype == 'quickfix' || (&buftype == 'nofile' && &filetype == 'vim')
+    try
+      close
+    catch /E444/  " cannot close last window
+      execute self.handle_quit()
+    endtry
+    return
+  endif
+
+  " Although q: sets &ft == 'vim', q/ and q? do not.
+  try
+    lclose
+  catch /E11/  " invalid in command-line window
+    close
+    let ret = 1
+  endtry
+  if exists('ret')
+    unlet ret
+    return
+  endif
 
   " :Sayonara!
+
+  let do_delete = !self.is_buffer_shown_in_another_window(self.target_buffer)
 
   if self.do_preserve
     let scratch_buffer = self.preserve_window()
@@ -65,34 +87,12 @@ function! s:prototype.handle_window()
 
   ":Sayonara
 
-  " quickfix, location or q:
-  if &buftype == 'quickfix' || (&buftype == 'nofile' && &filetype == 'vim')
-    try
-      close
-    catch /E444/  " cannot close last window
-      execute self.handle_quit()
-    endtry
-    return
-  endif
-
   let valid_buffers = len(filter(range(1, bufnr('$')),
         \ 'buflisted(v:val) && v:val != self.target_buffer'))
 
   " Special case: don't quit last window if there are other listed buffers
   if (tabpagenr('$') == 1) && (winnr('$') == 1) && (valid_buffers >= 1)
     execute 'silent bdelete!' self.target_buffer
-    return
-  endif
-
-  " Although q: sets &ft == 'vim', q/ and q? do not.
-  try
-    lclose
-  catch /E11/  " invalid in command-line window
-    close
-    let ret = 1
-  endtry
-  if exists('ret')
-    unlet ret
     return
   endif
 
