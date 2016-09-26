@@ -22,17 +22,18 @@ endfunction
 function! s:prototype.handle_modified_buffer()
   if &modified
     echo 'Unsaved changes: [w]rite, [s]kip, [b]reak '
-    let choice = getchar()
-    if nr2char(choice) == 'w'
+    let choice = nr2char(getchar())
+    if choice == 'w'
       write
       return ''
-    elseif nr2char(choice) == 's'
+    elseif choice == 's'
       return ''
     else
       redraw!
       return 'return'
     endif
   endif
+  return ''
 endfunction
 
 " s:prototype.handle_quit() {{{1
