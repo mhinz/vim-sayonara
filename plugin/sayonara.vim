@@ -21,13 +21,18 @@ endfunction
 " s:prototype.handle_modified_buffer() {{{1
 function! s:prototype.handle_modified_buffer()
   if &modified
-    echo 'There are unsaved changes. Close anyway? [y/n]: '
-    if nr2char(getchar()) != 'y'
+    echo 'Unsaved changes: [w]rite, [s]kip, [b]reak '
+    let choice = getchar()
+    if nr2char(choice) == 'w'
+      write
+      return ''
+    elseif nr2char(choice) == 's'
+      return ''
+    else
       redraw!
       return 'return'
     endif
   endif
-  return ''
 endfunction
 
 " s:prototype.handle_quit() {{{1
