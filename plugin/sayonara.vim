@@ -56,10 +56,9 @@ function! s:prototype.handle_window()
   if &buftype == 'quickfix' || (&buftype == 'nofile' && &filetype == 'vim')
     try
       close
+      return
     catch /E444/  " cannot close last window
-      execute self.handle_quit()
     endtry
-    return
   endif
 
   " Although q: sets &ft == 'vim', q/ and q? do not.
