@@ -24,8 +24,12 @@ function! s:prototype.handle_modified_buffer()
     echo 'Unsaved changes: [w]rite, [s]kip, [b]reak '
     let choice = nr2char(getchar())
     if choice == 'w'
-      write
-      return ''
+      try
+        write
+      catch /E32/
+        redraw | echohl ErrorMsg | echomsg 'No file name.' | echohl NONE
+        return 'return'
+      endtry
     elseif choice == 's'
       return ''
     else
