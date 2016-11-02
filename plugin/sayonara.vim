@@ -102,7 +102,7 @@ function! s:prototype.handle_window()
   endif
 
   try
-    close
+    close!
   catch /E444/  " cannot close last window
     execute self.handle_quit()
   endtry
