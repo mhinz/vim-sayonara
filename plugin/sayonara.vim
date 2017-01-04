@@ -71,6 +71,8 @@ function! s:prototype.handle_window()
   catch /E11/  " invalid in command-line window
     close
     let ret = 1
+  catch /E444/  " cannot close last window
+    execute self.handle_quit()
   endtry
   if exists('ret')
     unlet ret
