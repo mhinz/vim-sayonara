@@ -26,23 +26,23 @@ CONTENTS                                                     *sayonara-contents*
 
 ==============================================================================
 INTRO                                                           *sayonara-intro*
-                                                                     *:Sayonara*
+                                                            *sayonara-:Sayonara*
 
 This plugin provides a single command that deletes the current buffer in a
 smart way.
 
-Basically you don't have to think in terms of |:bdelete|, |:close|, |:quit|
-etc. anymore, since the plugin does that for you.
+You don't have to think in terms of |:bdelete|, |:close|, |:quit| etc. anymore, the
+plugin does that for you.
 
-It reduces cognitive load and lets you focus on the main task: editing text.
+This reduces cognitive load and lets you focus on the main task: editing text.
 >
     :Sayonara
 <
-This deletes the current buffer and closes the current window.
+This command deletes the current buffer and closes the current window.
 >
     :Sayonara!
 <
-This deletes the current buffer and preserves the current window.
+This command deletes the current buffer but preserves the current window.
 
 See |sayonara-details| to learn how these commands work in detail.
 
@@ -64,14 +64,28 @@ Or maybe |gs|, because usually nobody will need its default functionality:
 <
 ==============================================================================
 OPTIONS                                                       *sayonara-options*
-                                                       *g:sayonara_confirm_quit*
->
+                                                       *g:sayonara_confirm_quit*  >
     let g:sayonara_confirm_quit = 1
 <
 When |:Sayonara| deletes the last active buffer, Vim quits. If this option is
 set to `1`, you'll get prompted on whether to quit or not.
 
-Default: 0
+Default: `0`
+
+------------------------------------------------------------------------------
+                                                          *g:sayonara_filetypes*  >
+    let g:sayonara_filetypes = {
+        \ 'nerdtree': 'NERDTreeClose',
+        \ 'undotree': 'echomsg "Closing Undotree" | UndotreeHide',
+        \ }
+
+Use this option to overwrite the default behaviour of |:Sayonara| for certain
+filetypes.
+
+It takes a |Dictionary|. If the key matches the current 'filetype', the value
+get executed.
+
+Default: `{}`
 
 ==============================================================================
 DETAILS                                                       *sayonara-details*
