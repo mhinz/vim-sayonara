@@ -184,4 +184,4 @@ function! s:sayonara(do_preserve)
 endfunction
 " }}}
 
-command! -nargs=0 -complete=buffer -bang -bar Sayonara call s:sayonara(<bang>0)
+command! -nargs=? -complete=buffer -bang -bar Sayonara call <sid>sayonara(<bang>0)
