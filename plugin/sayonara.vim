@@ -21,16 +21,16 @@ endfunction
 " s:prototype.handle_modified_buffer() {{{1
 function! s:prototype.handle_modified_buffer()
   if &modified
-    echo 'Unsaved changes: [w]rite, [s]kip, [b]reak '
+    echo 'Save changes? [Y]es, [N]o, [C]ancel: '
     let choice = nr2char(getchar())
-    if choice == 'w'
+    if choice ==? 'y'
       try
         write
       catch /E32/
         redraw | echohl ErrorMsg | echomsg 'No file name.' | echohl NONE
         return 'return'
       endtry
-    elseif choice == 's'
+    elseif choice ==? 'n'
       return ''
     else
       redraw!
@@ -46,7 +46,7 @@ function! s:prototype.handle_quit()
   redraw!
   if (get(g:, 'sayonara_confirm_quit'))
     echo 'No active buffer remaining. Quit Vim? [y/n]: '
-    if nr2char(getchar()) != 'y'
+    if nr2char(getchar()) !=? 'y'
       redraw!
       return 'return'
     endif
